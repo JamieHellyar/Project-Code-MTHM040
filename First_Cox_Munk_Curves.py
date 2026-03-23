@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 23 20:40:51 2026
-
-@author: Jamie
-"""
-
 # First I will digitise for all the wind speeds:
     
 dig = {
