@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 23 20:47:56 2026
-
-@author: Jamie
-"""
-
 # And now for the Inversion work:
  
 import numpy as np
