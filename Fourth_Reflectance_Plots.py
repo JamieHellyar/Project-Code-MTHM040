@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 23 20:46:26 2026
-
-@author: Jamie
-"""
-
-
-
 import numpy as np
 import xarray
 import netCDF4
