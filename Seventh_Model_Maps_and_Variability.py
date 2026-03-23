@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 23 20:50:45 2026
-
-@author: Jamie
-"""
-
-
 import iris
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
