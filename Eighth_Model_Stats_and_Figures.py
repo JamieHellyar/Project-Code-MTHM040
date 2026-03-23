@@ -222,7 +222,7 @@ dig = {
     
 }
 
-
+# Now I can interpolate these points to make my own version of the Cox-Munk curves
 
 wind_speeds = np.arange(0, 16)		# To create an array for wind speeds 0 to 15m/s
 theta_common = np.linspace(-20, 70, 300)	# Over the theta range of -20 to 70 degrees
