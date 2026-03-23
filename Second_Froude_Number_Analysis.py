@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 23 20:42:30 2026
-
-@author: Jamie
-"""
-
-
 import xarray as xr
 import matplotlib.pyplot as plt
 
