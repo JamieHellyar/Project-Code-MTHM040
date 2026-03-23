@@ -440,7 +440,7 @@ from scipy.stats import rankdata
 
 # To create a function that finds the top percentiles
 def top_percentile(array):
-    rank = rankdata(arr, method='average')		# Ranking the data by averages
+    rank = rankdata(array, method='average')		# Ranking the data by averages
     percentiles = 100 * (rank - 1) / (len(array) - 1)		# Caclulating the percentiles
     return percentiles
 
