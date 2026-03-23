@@ -468,9 +468,9 @@ sar_wind = sar_wind_flat[idx[mask_collocated]]
 
 # Also, can consider percentiles to make spatial analysis only, ignoring magnitude
 
-def top_percentile(arr):
-    ranks = rankdata(arr, method='average')
-    return 100 * (ranks - 1) / (len(arr) - 1)
+def top_percentile(array):
+    ranks = rankdata(array, method='average')
+    return 100 * (ranks - 1) / (len(array) - 1)
 
 
 #%%
