@@ -22,6 +22,7 @@ HOME_DIR = '/Users/Jamie/Documents/Wind Project/'
 # Can do the same for MOD333_2025-06-23_0815.nc and MOD333_2025-07-03_0815.nc
 mod = xr.open_dataset(HOME_DIR + 'MOD333_2025-06-28_0815.nc')
 
+# To define the latitude and longitude variables
 lat = mod['lat'].values
 lon = mod['lon'].values
 
