@@ -4,7 +4,7 @@ import netCDF4
 import scipy
 
 # Path to home directory
-HOME_DIR = '/Users/Jamie/Documents/Wind Project/'
+HOME_DIR = '/Users/Documents/Wind Project/'
 
 # I can read the netCDF4 file in python is using the xarray library
 file_path = HOME_DIR+'GEOMETRY250_2025-06-26_0835.nc'
