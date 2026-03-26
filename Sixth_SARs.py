@@ -26,7 +26,7 @@ high_var_mask = ws_std > threshold	# I will mask out data points above this thre
 rest = ~high_var_mask		# Now the rest of the data will only be lower variability regions
 
 
-# Path to home directory (in my case, an external storage drive)
+# Path to home directory
 HOME_DIR = '/Users/Jamie/Documents/Wind Project/'
 
 # Load MOD333 (reflectance + geometry together)
@@ -35,13 +35,13 @@ mod = xr.open_dataset(HOME_DIR + 'MOD333_2025-06-28_0815.nc')
 # Again to define lon, lat and reflectance
 lat = mod['lat'].values
 lon = mod['lon'].values
-R = mod['band2_reflectance'].values
+R = mod['band2_reflectance'].values    # For band 2 wavelengths (NIR)
 
 # And now for the gometry 
-sza = mod['solar_zenith'].values
-saa = mod['solar_azimuth'].values
-vza = mod['satellite_zenith'].values
-vaa = mod['satellite_azimuth'].values
+sza = mod['solar_zenith'].values           # Solar zenith angles
+saa = mod['solar_azimuth'].values          # Solar azimuth angles
+vza = mod['satellite_zenith'].values       # VIewing zenith angles
+vaa = mod['satellite_azimuth'].values      # Viewing azimuth angles
 
 
 #%%
@@ -50,20 +50,20 @@ vaa = mod['satellite_azimuth'].values
 def GlintAngle(solar_zenith, solar_azimuth,
                 sat_zenith, sat_azimuth):
 
-    d = np.deg2rad(abs(sat_azimuth - solar_azimuth))
+    d = np.deg2rad(abs(sat_azimuth - solar_azimuth))      # Relative azimuth angles, need to convert to radians
     a = np.cos(np.deg2rad(sat_zenith)) * np.cos(np.deg2rad(solar_zenith))
     b = np.sin(np.deg2rad(sat_zenith)) * np.sin(np.deg2rad(solar_zenith)) * np.cos(d)
 
     glint_radiance = np.arccos(a - b)
 
-    return np.rad2deg(glint_radiance)
+    return np.rad2deg(glint_radiance)            # And now to convert back to degrees
 
 # To call on the function
 SGA = GlintAngle(sza, saa, vza, vaa)
 
 #%%
 
-# Now to define the digtised curves
+# Now to define the digtised curves once again
 dig = {
     0: {
         "x": [3.0, 4.68, 6.12, 7.56, 9.24, 11.16, 13.08, 15.72, 18.12, 20.28,
@@ -217,6 +217,8 @@ dig = {
     }
     
 }
+
+
 #%%
  
 # Now first for the 1D model:
@@ -227,8 +229,9 @@ wind_speeds = np.arange(0, 16)  # 0 to 15 m/s
 # Now I can interpolate each Cox–Munk curve onto a common zenith grid
 theta_common = np.linspace(-20, 70, 300)   # For the theta range
 ref_curves = {}
+# For each of the wind speeds
 for w in wind_speeds:
-    x = np.array(dig[w]["x"])
+    x = np.array(dig[w]["x"])      # For the 
     y = np.array(dig[w]["y"])
     # I need to remove duplicates / sort
     order = np.argsort(x)
