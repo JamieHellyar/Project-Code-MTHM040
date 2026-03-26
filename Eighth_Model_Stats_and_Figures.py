@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 
-HOME_DIR = '/Users/Jamie/Documents/Wind Project/'
+HOME_DIR = '/Users/Documents/Wind Project/'
 
 # Can do the same for MOD333_2025-06-23_0815.nc and MOD333_2025-07-03_0815.nc
 mod = xr.open_dataset(HOME_DIR + 'MOD333_2025-06-28_0815.nc')
@@ -27,11 +27,12 @@ vaa = mod['satellite_azimuth'].values
 
 
 #%%
+
 # Again to calculate the sun-glint angles
 def GlintAngle(solar_zenith, solar_azimuth,
                sat_zenith, sat_azimuth):
 
-    d = np.deg2rad(abs(sat_azimuth - solar_azimuth)) # To convert from degrees to radians
+    d = np.deg2rad(abs(sat_azimuth - solar_azimuth)) # To convert from degrees to radians and find the relative azimuth angle
 
     a = np.cos(np.deg2rad(sat_zenith)) * np.cos(np.deg2rad(solar_zenith))
     b = np.sin(np.deg2rad(sat_zenith)) * np.sin(np.deg2rad(solar_zenith)) * np.cos(d)
@@ -222,10 +223,10 @@ theta_common = np.linspace(-20, 70, 300)	# Over the theta range of -20 to 70 deg
 ref_curves = {}		# To create an empty list for the interpolated reflectance curves
 
 for w in wind_speeds:			# For each wind speed
-    x = np.array(dig[w]["x"])			# To extract the angle and reflectance data
-    y = np.array(dig[w]["y"])
+    x = np.array(dig[w]["x"])			# To extract the angles
+    y = np.array(dig[w]["y"])     # And the reflectance
 
-    order = np.argsort(x)			# To order the data in terms of theta angle
+    order = np.argsort(x)			# To order the data in terms of theta angle in ascending order
     x, y = x[order], y[order]
 
     # Now I can interpolate the data onto a common grid
@@ -238,7 +239,7 @@ for w in wind_speeds:			# For each wind speed
     idx_peak = np.nanargmax(ref_curves[w])	# I can find the index for where the maximum curve is
     theta_peak[w] = theta_common[idx_peak]	# I can now set the peak theta values at this index
 
-theta_rel_curves = {}		# Now for the theta reflectance curves array
+theta_rel_curves = {}		  # Now for the theta reflectance curves array
 for w in wind_speeds:			# For each wind speed
     theta_rel_curves[w] = theta_common - theta_peak[w]	# I can now shift each curves position so the peak is at 0
 
@@ -308,7 +309,7 @@ for pixel in range(valid_pix):
 # To remove any 0 values from the inversion
 valid_modis = np.isfinite(wind_est)
 
-lat_modis  = lat_use[valid_modis]	# To apply the mask to the lat lon and wind
+lat_modis  = lat_use[valid_modis]	# To apply the mask to the lat lon and wind speeds
 lon_modis  = lon_use[valid_modis]
 wind_modis = wind_est[valid_modis]
 
@@ -321,7 +322,7 @@ wind_modis = wind_est[valid_modis]
 #%%
 
 # Now I want to load the UKESM model datasets
-ROOT = '/Users/Jamie/Documents/Wind Project/Model Data/'
+ROOT = '/Users/Documents/Wind Project/Model Data/'
 filepath_333m = ROOT+'333m/{}_333m_wind_speed_12hr.nc'
 filepath_1km = ROOT+'1km/{}_1km_wind_speed_12hr.nc'
 filepath_global = ROOT+'global/{}_global_wind_speed_12hr.nc'
@@ -336,7 +337,7 @@ data_10km = iris.load_cube(filepath_global.format(date))
 
 # I need to convert the global data to -180 to 180
 lon = data_10km.coord('longitude')
-lon_wrap = ((lon.points+180)%360)-180 # To conver the coordinates
+lon_wrap = ((lon.points+180)%360)-180 # To convert the coordinates
 
 sorted_idx = np.argsort(lon_wrap) # I need to sort the data for longitudes
 lon.points = lon_wrap[sorted_idx] # And now I can redefine my longitudes
@@ -357,7 +358,7 @@ lon.circular=True
 time_coord = data_1km.coord('time')
 times = time_coord.units.num2date(time_coord.points)
 
-#First want to look for a time around 08:15 as that was the time of the MODIS overpass
+# First want to look for a time around 08:15 as that was the time of the MODIS overpass
 
 from datetime import datetime
 import numpy as np
@@ -434,16 +435,15 @@ lon10 = lon_10km[lon_mask3]
 
 #%%
 
-# To assess only the spatial distributions, I can look at percentiles
+# To assess only the spatial distributions, I can also look at percentiles
 
 from scipy.stats import rankdata
 
-# To create a function that finds the top percentiles
+# To create a function that finds the percentiles
 def top_percentile(array):
     rank = rankdata(array, method='average')		# Ranking the data by averages
     percentiles = 100 * (rank - 1) / (len(array) - 1)		# Caclulating the percentiles
     return percentiles
-
 
 
 
@@ -525,7 +525,7 @@ def compare_resolution(ws_field, lat_grid, lon_grid, label):
 
 
     # And now to print all the results
-    print(f"N: {len(modis_wind)}")
+    print(f"N: {len(modis_wind)}") 
     print(f"R^2: {r2:.2f}")
     print(f"Bias: {bias:.2f} m/s")
     print(f"RMSE: {rmse:.2f} m/s")
