@@ -5,7 +5,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import netCDF4
 import scipy
-# Path to home directory (in my case, an external storage drive)
+# Path to my home directory
 HOME_DIR = '/Users/Jamie/Documents/Wind Project/' 
 # 28 June reflectance (small regridded file)
 REFL_FILE = HOME_DIR + 'MOD02QKM_333_2025-06-28_0815.nc'
@@ -24,25 +24,27 @@ lat = refl_ds['lat'].data
 lon = refl_ds['lon'].data
  
 # I will use band 2 for sun glint calculations
+# To define the reflectance and angle variables
 R = refl_ds['band2_reflectance'].data
-sza = geom_ds['solar_zenith_angle'].data
-saa = geom_ds['solar_azimuth_angle'].data
-vza = geom_ds['satellite_zenith_angle'].data
-vaa = geom_ds['satellite_azimuth_angle'].data
+sza = geom_ds['solar_zenith_angle'].data        # Solar zenith angle
+saa = geom_ds['solar_azimuth_angle'].data       # Solar azimuth angle
+vza = geom_ds['satellite_zenith_angle'].data    # Viewing zenith angle
+vaa = geom_ds['satellite_azimuth_angle'].data   # Viewing azimuth angle
  
 # To calculate the SGA
 def GlintAngle(solar_zenith, solar_azimuth,
                 sat_zenith, sat_azimuth):
-    d = np.deg2rad(abs(sat_azimuth - solar_azimuth))
+    d = np.deg2rad(abs(sat_azimuth - solar_azimuth))    # To find the relative azimuth angle and convert it to radians
     a = np.cos(np.deg2rad(sat_zenith)) * np.cos(np.deg2rad(solar_zenith))
     b = np.sin(np.deg2rad(sat_zenith)) * np.sin(np.deg2rad(solar_zenith)) * np.cos(d)
     glint_radiance = np.arccos(a - b)
-    return np.rad2deg(glint_radiance)
+    return np.rad2deg(glint_radiance)                   # I need to convert it back from radians to degrees
  
 SGA = GlintAngle(sza, saa, vza, vaa)
  
 #%%
- 
+
+# Now to define all the points I digitised from the Cox-Munk curves again
 dig = {
     0: {
         "x": [3.0, 4.68, 6.12, 7.56, 9.24, 11.16, 13.08, 15.72, 18.12, 20.28,
@@ -236,7 +238,7 @@ from scipy.spatial import cKDTree
 geom_tree = cKDTree(np.column_stack((lat_g, lon_g)))
  
 # For each reflectance pixel, I'll find the nearest geometry pixel
-aaa, index = geom_tree.query(
+aaa, index = geom_tree.query(                       # I only need the index so I can define aaa as a dummy variable
     np.column_stack((lat_r, lon_r)),
     k=1
 )
@@ -277,7 +279,7 @@ wind_est = np.full(len(R_use), np.nan)   # To store the wind estimates
 # For each valid pixel
 for i in range(len(R_use)):
     theta = vza_use[i]  	# Set theta as the zenith angles
-    R_obs = R_use[i]  	# For the observed reflectance
+    R_obs = R_use[i]    	# For the observed reflectance
     # I will interpolate model reflectance at each zenith angle
     model_R = np.array([
         np.interp(theta, theta_common, ref_curves[w])
@@ -287,7 +289,7 @@ for i in range(len(R_use)):
     diff = np.abs(model_R - R_obs)
     if np.all(np.isnan(diff)):   	# To check the differences are all valid
         continue
-   # Finally I can estimate wind speeds by observing the nearest wind speed curve to the R value
+    # Finally I can estimate wind speeds by observing the nearest wind speed curve to the R value
     wind_est[i] = wind_speeds[np.nanargmin(diff)]
  
  
@@ -321,10 +323,10 @@ ax.set_extent([22.5, 27.5, 33.25, 36], crs=proj)  # For the limits
 pcm = ax.pcolormesh(
     lon, lat, wind_map,
     transform=proj,
-    cmap='inferno',
+    cmap='inferno',        # A colour blind friendly colour map
     shading='auto'
 )
-cb = plt.colorbar(pcm, ax=ax, shrink=0.8) # The colour bar
+cb = plt.colorbar(pcm, ax=ax, shrink=0.8)     # The colour bar
 cb.set_label("Wind speed (m/s)", fontsize=16) # The colour bar label
  
 # To add the real world features using Cartopy
@@ -449,7 +451,7 @@ valid = (
     (lat_flat <= lat_max)
 )
  
-# Now to define the variables I will use after masking
+# Now to define the variables I will use after applying the masking
 lat_use=lat_flat[valid]
 lon_use=lon_flat[valid]
 theta_use = SGA_flat[valid]
@@ -560,26 +562,3 @@ print("Std wind 1D model:", np.nanstd(wind_est1))
 print("Mean wind 2D model:", np.nanmean(wind_est2))
 print("Std wind 2D model:", np.nanstd(wind_est2)) 
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
