@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import netCDF4
 import scipy
 # Path to my home directory
-HOME_DIR = '/Users/Jamie/Documents/Wind Project/' 
+HOME_DIR = '/Users/Documents/Wind Project/' 
 # 28 June reflectance (small regridded file)
 REFL_FILE = HOME_DIR + 'MOD02QKM_333_2025-06-28_0815.nc'
 # 28 June geometry
@@ -315,7 +315,7 @@ import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 from cartopy.feature import NaturalEarthFeature
 plt.figure(figsize=(10, 8))
-proj = ccrs.PlateCarree()
+pro = ccrs.PlateCarree()
 ax = plt.axes(projection=proj)
 ax.set_extent([22.5, 27.5, 33.25, 36], crs=proj)  # For the limits
  
