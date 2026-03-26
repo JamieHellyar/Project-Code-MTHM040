@@ -7,7 +7,7 @@ import iris
 from scipy.spatial import cKDTree
 
 # First I will load the model data for 333 m resolution so I can define the high-variability areas
-ROOT = '/Users/Jamie/Documents/Wind Project/Model Data/'
+ROOT = '/Users/Documents/Wind Project/Model Data/'
 filepath_333m = ROOT+'333m/{}_333m_wind_speed_12hr.nc'
 
 # For the 28th of June
@@ -23,11 +23,11 @@ ws_std = np.std(ws_all, axis=0)	# To define their standard deviations at each pi
 # I can now define a threshold for high variability
 threshold = np.percentile(ws_std, 80)	# For the top 20 percentile of variability over the days
 high_var_mask = ws_std > threshold	# I will mask out data points above this threshold
-rest = ~high_var_mask		# Now the rest of the data will only be lower variability regions
+low_var = ~high_var_mask		# Now the rest of the data will only be lower variability regions
 
 
 # Path to home directory
-HOME_DIR = '/Users/Jamie/Documents/Wind Project/'
+HOME_DIR = '/Users/Documents/Wind Project/'
 
 # Load MOD333 (reflectance + geometry together)
 mod = xr.open_dataset(HOME_DIR + 'MOD333_2025-06-28_0815.nc')
@@ -231,21 +231,21 @@ theta_common = np.linspace(-20, 70, 300)   # For the theta range
 ref_curves = {}
 # For each of the wind speeds
 for w in wind_speeds:
-    x = np.array(dig[w]["x"])      # For the 
-    y = np.array(dig[w]["y"])
-    # I need to remove duplicates / sort
-    order = np.argsort(x)
+    x = np.array(dig[w]["x"])      # For the viewing angle
+    y = np.array(dig[w]["y"])      # For the reflectance
+    # I need to remove duplicates and sort it into ascending order
+    order = np.argsort(x) 
     x, y = x[order], y[order]
-    # Then to interpolate
+    # Then to interpolate to create the reflection curves
     ref_curves[w] = np.interp(theta_common, x, y,
                               left=np.nan, right=np.nan)
 
 
 # Now as I need to consider the geometry, I need to factor in the peak of each curve
 
-theta_peak = {} 	# For the peak theta value
+theta_peak = {} 	# For the peak theta values for each wind speed
 
-for w in wind_speeds:	# For each wind speed
+for w in wind_speeds:	# For each wind speed 0-15 m/s
     y = ref_curves[w]	# Set the reflectance curves as the y axis
     idx_peak = np.nanargmax(y)	# To find the index of the greatest reflectance
     theta_peak[w] = theta_common[idx_peak]	# Now to find where the peaks are
@@ -274,7 +274,7 @@ vza_flat = vza.ravel()     # The satellite zenith
 SGA_flat = SGA.ravel()     # And the sun glint angle
 
 
-# Now to define the latitude constraint for Crete region
+# Now to define the latitude constraint I want to use for the Crete region
 lat_min = 33.0
 lat_max = 36.0
 
@@ -305,7 +305,7 @@ theta_use = SGA_flat[valid]
 R_use     = R_flat[valid]
 vza_use   = vza_flat[valid]
 
-# I need to stack the reflectance curves into vertical arrays
+# I need to stack the reflectance curves into vertical arrays for each wind speed
 model_curves = np.vstack([ref_curves[w] for w in wind_speeds])
 theta_rel    = np.vstack([theta_rel_curves[w] for w in wind_speeds])
 
@@ -355,7 +355,7 @@ model_lon_flat = model_lon_grid.ravel()
 model_lat_flat = model_lat_grid.ravel()
 
 # And also flatten low-variability mask 
-low_var_flat = rest.ravel()
+low_var_flat = low_var.ravel()
 
 # Now I will build KDTree from all the model grid points
 model_points = np.column_stack((model_lon_flat, model_lat_flat))
@@ -401,7 +401,8 @@ lat_use = lat_use[mask_near]
 import os
 import xarray as xr
 
-HOME_DIR = r'C:\Users\Jamie\Documents\Wind Project'
+# For my home directory
+HOME_DIR = r'C:\Users\Documents\Wind Project'
 
 # To extract each SARs file I may need
 files = [
@@ -413,7 +414,7 @@ files = [
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+# To add the SARs data that has been regridded
 file_path = os.path.join(HOME_DIR, "SAR333_2025-06-28.nc")
 sar = xr.open_dataset(file_path)	# To open the SAR333 file for the 333m resolution data
 
@@ -471,6 +472,7 @@ sar_wind = sar_wind_flat[idx[mask_collocated]]
 
 # Also, can consider percentiles to make spatial analysis only, ignoring magnitude
 
+# I can create a general function to rank the data to find the percentiles
 def top_percentile(array):
     ranks = rankdata(array, method='average')
     return 100 * (ranks - 1) / (len(array) - 1)
@@ -479,7 +481,6 @@ def top_percentile(array):
 #%%
 
 # Now I can conduct statiscitcal comparisons based on both the wind speeds estimates
-
 
 # First I will check the linear fit
 slope, intercept = np.polyfit(sar_wind, modis_wind, 1)	# To find the slope and intercept
@@ -613,27 +614,3 @@ plt.yticks(fontsize=14)
 
 plt.tight_layout()
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
