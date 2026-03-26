@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import cartopy.feature as cfeature
 import numpy as np
 
-# To extract the model data files
-ROOT = '/Users/Jamie/Documents/Wind Project/Model Data/'
+# To extract the model data files for each model resolution
+ROOT = '/Users/Documents/Wind Project/Model Data/'
 filepath_333m = ROOT+'333m/{}_333m_wind_speed_12hr.nc'
 filepath_1km = ROOT+'1km/{}_1km_wind_speed_12hr.nc'
 filepath_global = ROOT+'global/{}_global_wind_speed_12hr.nc'
@@ -97,9 +97,9 @@ lon_min, lon_max = 23, 28
 
 # Now I can define a subset for these to apply the mask for the longitudes and latitude ranges
 def subset(ws, lats, lons):
-    lat_mask = (lats >= lat_min) & (lats <= lat_max)
-    lon_mask = (lons >= lon_min) & (lons <= lon_max)
-    return ws[np.ix_(lat_mask, lon_mask)], lats[lat_mask], lons[lon_mask]
+    lat_mask = (lats >= lat_min) & (lats <= lat_max)    # In the desired latitude range
+    lon_mask = (lons >= lon_min) & (lons <= lon_max)    # In the desired longitude range
+    return ws[np.ix_(lat_mask, lon_mask)], lats[lat_mask], lons[lon_mask]   # Return the wind speeds with the applied mask
 
 # And to apply this to each resolution from the model
 ws333, lat333, lon333 = subset(ws_333m, lats_333m, lons_333m)	# 333 m
@@ -132,7 +132,7 @@ for ax, (ws, lat, lon), title in zip(axes, data, titles):		# Zipping each resolu
     pcm = ax.pcolormesh(
         lon, lat, ws,			# For the grid coordinates and the wind speeds to be plotted
         cmap='inferno',			# FOr the colour scheme
-        vmin=0, vmax=15,			# And the colour scale
+        vmin=0, vmax=15,	    # And the colour scale
         shading='auto',
         transform=ccrs.PlateCarree()
     )
@@ -163,7 +163,7 @@ plt.show()
 # For the 1km model:
 
 # Convert entire cube to numpy
-ws_all = np.array(data_1km.data)  # shape: (time, lat, lon)
+ws_all = np.array(data_1km.data)  # Shape of (time, lat, lon)
 
 # Now I will compute the temporal standard deviation at each grid point
 ws_std = np.std(ws_all, axis=0)
@@ -223,15 +223,5 @@ print("90th percentile threshold:", threshold)
 
 # And to apply the mask to wind speed field
 ws_filtered = np.where(high_var_mask, np.nan, ws_sub)
-
-
-
-
-
-
-
-
-
-
 
 
