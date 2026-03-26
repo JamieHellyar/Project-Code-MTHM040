@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 # First to load the datafile for the model temperature data
 
-HOME_DIR = '/Users/Jamie/Documents/Wind Project/Model Data/'
+HOME_DIR = '/Users/Documents/Wind Project/Model Data/'
 
 # To define the potential temperatures
 
@@ -11,7 +11,7 @@ theta_ds = xr.open_dataset(HOME_DIR + 'potential_temperature_1km_20250627T1800_1
 
 # Now to load the datafile for the model wind speeds
 
-HOME_DIR2 = '/Users/Jamie/Documents/Wind Project/Model Data/1km/'
+HOME_DIR2 = '/Users/Documents/Wind Project/Model Data/1km/'
 
 # To define the wind speeds
 
@@ -21,11 +21,6 @@ wind_ds = xr.open_dataset(HOME_DIR2 + '20250627T1800_1km_wind_speed_12hr.nc')
 
 land = xr.open_dataset(HOME_DIR2 + '20250627T1800_1km_land_binary_mask_12hr.nc')
 
-
-print(theta_ds)     # To check these values seem reasonable
-print(wind_ds)
-print(theta_ds['surface_altitude']) 
-print(land)
 
 
 
