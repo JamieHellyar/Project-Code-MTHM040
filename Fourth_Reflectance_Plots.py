@@ -3,14 +3,14 @@ import xarray
 import netCDF4
 import scipy
 
-# Path to home directory (in my case, an external storage drive)
+# Path to home directory 
 HOME_DIR = '/Users/Jamie/Documents/Wind Project/’
 
 # The easiest way to read a netCDF4 file in python is using the xarray library
 file_path = HOME_DIR+'MOD02QKM_2025-06-26_0835.nc' 
 dataset = xarray.open_dataset(file_path)
 
-# To extract the numerical data
+# To extract the numerical data for band 1
 band1_data = dataset['band1_radiance'].data
 
 # %%
@@ -64,7 +64,7 @@ def exp_reflectance_plot(dataset, bands, target_lat, lon_min, lon_max):
 
         plt.plot(x, y, label="Raw Data", linewidth=1.5)		# To plot the raw data
 
-       # Now, if the data exists I can estimate the parameters
+        # Now, if the data exists I can estimate the parameters
         if np.any(y > 0):
 
             mu_est = np.sum(x * y) / np.sum(y)	# For the mean
@@ -76,10 +76,10 @@ def exp_reflectance_plot(dataset, bands, target_lat, lon_min, lon_max):
             try:
                 p0 = [a_est, 1.0, mu_est, sigma_est, np.min(y)] # To make an array of the parameters
                 params, _ = curve_fit(ExpNorm, x, y, p0=p0, maxfev=10000) # To run the EMG function
-                y_emg = ExpNorm(x, *params)	# For the plots y values
+                y_emg = ExpNorm(x, params)	# For the plots y values
                 plt.plot(x, y_emg, '-', label="EMG Distribution")	# To plot the EMG
             except RuntimeError:
-                print(f"EMG fit failed for {band}")	# If fit fails
+                print(f"EMG fit failed for {band}")	# If the fit fails
 
     # For the labels
     plt.xlabel("Longitude (°E)",fontsize=18)
@@ -93,8 +93,7 @@ def exp_reflectance_plot(dataset, bands, target_lat, lon_min, lon_max):
 
 # %%
 
-# Now to call on the function and make the plot:
-    
+# Now to call on the function and make the plot over the desired region far from any coastlines:    
 exp_reflectance_plot(
     dataset,
     bands=['band1_reflectance'],
